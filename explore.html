@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore Recipes</title>
+  <link rel="icon" href="image/i.jpg">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #b792ec;
+    }
+
+    .home-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #ffffff;
+      color: #333;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 1000;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 36px;
+      color: white;
+      text-shadow: 0 0 10px #000;
+    }
+
+    .search-box {
+      margin: 20px 0;
+    }
+
+    #ingredientInput {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 250px;
+    }
+
+    .search-box button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      background-color: white;
+      color: #333;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    #noResultsMessage {
+      display: none;
+      color: white;
+      background: #e74c3c;
+      padding: 10px;
+      margin: 15px 0;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .recipe-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s;
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .recipe-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .recipe-card h3 {
+      margin: 10px 0 5px;
+    }
+
+    .view-recipe-btn {
+      background: #7a47e2;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin-bottom: 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .view-recipe-btn:hover {
+      background: #5e32b5;
+    }
+
+    /* Modal Styles */
+    #recipeModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 80%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      text-align: left;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+    }
+
+    .close-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-weight: bold;
+      display: block;
+      margin-left: auto;
+    }
+
+    @media (max-width: 1024px) {
+      .recipe-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .recipe-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="home-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+  <div class="container">
+    <h1>Explore Recipes 🍽️</h1>
+    <div class="search-box">
+      <input type="text" id="ingredientInput" placeholder="Enter ingredient..." />
+      <button onclick="searchRecipes()">Search</button>
+    </div>
+    <div id="noResultsMessage">❌ No recipes found for your search. Please try something else.</div>
+    <div class="recipe-grid">
+      <div class="recipe-card" data-name="chocolate cake">
+        <img src="image/cake.jpg" alt="Chocolate Cake" />
+        <h3>Chocolate Cake</h3>
+        <button class="view-recipe-btn" onclick="showRecipe('Chocolate Cake', ['2 cups flour', '1 cup sugar', '3/4 cup cocoa powder', '2 eggs', '1 cup milk'], ['Preheat oven to 180°C', 'Mix dry ingredients', 'Add wet ingredients', 'Bake for 35 mins'])">View Recipe</button>
+      </div>
+      <div class="recipe-card" data-name="pancakes">
+        <img src="image/pancakes.jpg" alt="Pancakes" />
+        <h3>Pancakes</h3>
+        <button class="view-recipe-btn" onclick="showRecipe('Pancakes', ['1 cup flour', '1 egg', '1 cup milk', '1 tsp baking powder'], ['Mix all ingredients', 'Pour batter onto griddle', 'Cook until golden brown'])">View Recipe</button>
+      </div>
+      <div class="recipe-card" data-name="cheesecake">
+        <img src="image/cheesecake.jpg" alt="Cheesecake" />
+        <h3>Cheesecake</h3>
+        <button class="view-recipe-btn" onclick="showRecipe('Cheesecake', ['200g cream cheese', '100g sugar', '2 eggs', '1/2 cup cream'], ['Preheat oven to 160°C', 'Mix ingredients', 'Pour into mold', 'Bake for 45 mins'])">View Recipe</button>
+      </div>
+      <div class="recipe-card" data-name="white forest cake">
+        <img src="image/whit.jpg" alt="White Forest Cake" />
+        <h3>White Forest Cake</h3>
+        <button class="view-recipe-btn" onclick="showRecipe('White Forest Cake', ['2 cups flour', '1 cup sugar', '1 cup milk', '1/2 cup butter'], ['Preheat oven', 'Mix ingredients', 'Bake for 30 mins'])">View Recipe</button>
+      </div>
+          <!-- Plain Cake -->
+      <div class="recipe-card" data-name="plaincake">
+        <img src="image/plain.jpg" alt="Plain Cake" />
+        <h3>Plain Cake</h3>
+        <button class="view-recipe-btn"
+          onclick="showRecipe('Plain Cake', ['1.5 cups flour', '1/2 cup sugar', '2 eggs', '1/2 cup butter', '1 tsp baking powder'], ['Mix dry ingredients', 'Add eggs and butter', 'Pour into greased tin and bake'])">View Recipe</button>
+      </div>
+  
+      <!-- Honey Cake -->
+      <div class="recipe-card" data-name="honeycake">
+        <img src="image/honey.jpg" alt="Honey Cake" />
+        <h3>Honey Cake</h3>
+        <button class="view-recipe-btn"
+          onclick="showRecipe('Honey Cake', ['1.5 cups flour', '1/2 cup sugar', '1/2 cup honey', '2 eggs', '1/2 cup milk', '1/4 cup oil', '1 tsp baking soda'], ['Preheat oven to 180°C', 'Mix flour, baking soda, and sugar', 'Whisk honey, milk, eggs, and oil separately', 'Combine wet and dry ingredients', 'Pour into tin and bake for 30-35 mins'])">View Recipe</button>
+      </div>
+  
+      <!-- Carrot Cake -->
+      <div class="recipe-card" data-name="carrotcake">
+        <img src="image/carrot.jpg" alt="Carrot Cake" />
+        <h3>Carrot Cake</h3>
+        <button class="view-recipe-btn"
+          onclick="showRecipe('Carrot Cake', ['1.5 cups grated carrots', '1 cup flour', '3/4 cup sugar', '2 eggs', '1/2 cup oil', '1/2 tsp cinnamon', '1 tsp baking powder'], ['Preheat oven to 175°C', 'Mix flour, baking powder, cinnamon', 'Whisk eggs, sugar, and oil', 'Fold in grated carrots', 'Bake for 35-40 mins'])">View Recipe</button>
+      </div>
+  
+      <!-- Oreo Cake -->
+      <div class="recipe-card" data-name="oreocake">
+        <img src="image/oreos.jpg" alt="Oreo Cake" />
+        <h3>Oreo Cake</h3>
+        <button class="view-recipe-btn"
+          onclick="showRecipe('Oreo Cake', ['20 Oreo biscuits', '1/2 cup milk', '1 tsp baking powder', '2 tbsp sugar'], ['Crush Oreos into powder', 'Mix with milk, sugar, and baking powder', 'Pour into greased mold', 'Microwave for 5-6 mins or bake at 180°C for 20-25 mins'])">View Recipe</button>
+      </div>
+
+
+      <!-- Paneer Tikka -->
+   <div class="recipe-card" data-name="paneertikka">
+    <img src="image/panner.jpg" alt="Paneer Tikka" />
+    <h3>Paneer Tikka</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Paneer Tikka', 
+      ['250g paneer cubes', '1/2 cup yogurt', 'Spices', 'Capsicum, onions', 'Skewers'], 
+      ['Marinate paneer with yogurt and spices', 'Skewer with veggies', 'Grill or bake until charred'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Gobi Manchurian -->
+  <div class="recipe-card" data-name="gobimanchurian">
+    <img src="image/gobi.jpg" alt="Gobi Manchurian" />
+    <h3>Gobi Manchurian</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Gobi Manchurian', 
+      ['Cauliflower florets', 'Cornflour, maida', 'Soy sauce, chili sauce', 'Spring onions'], 
+      ['Fry battered gobi', 'Toss in sauces and sauté with onions'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Mushroom Fry -->
+  <div class="recipe-card" data-name="mushroomfry">
+    <img src="image/mushroom fry.jpg" alt="Mushroom Fry" />
+    <h3>Mushroom Fry</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Mushroom Fry', 
+      ['Mushrooms', 'Onions, tomatoes', 'Spices', 'Curry leaves'], 
+      ['Sauté onions and tomatoes', 'Add spices and mushrooms', 'Cook till dry and flavorful'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Potato Balls -->
+  <div class="recipe-card" data-name="potatoballs">
+    <img src="image/patato.jpg" alt="Potato Balls" />
+    <h3>Potato Balls</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Potato Balls', 
+      ['Boiled potatoes', 'Bread crumbs', 'Cheese (optional)', 'Spices'], 
+      ['Mash potatoes with spices and cheese', 'Shape into balls and coat with crumbs', 'Deep fry till golden'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Veg Fried Rice -->
+  <div class="recipe-card" data-name="vegfriedrice">
+    <img src="image/fried rice.jpg" alt="Veg Fried Rice" />
+    <h3>Veg Fried Rice</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Veg Fried Rice', 
+      ['Cooked rice', 'Carrot, beans, capsicum', 'Soy sauce, pepper'], 
+      ['Sauté veggies', 'Add rice and sauces', 'Toss on high flame'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Tomato Rice -->
+  <div class="recipe-card" data-name="tomatorice">
+    <img src="image/tamotto.jpg" alt="Tomato Rice" />
+    <h3>Tomato Rice</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Tomato Rice', 
+      ['Cooked rice', 'Tomatoes', 'Onions', 'Spices', 'Mustard seeds'], 
+      ['Cook tomato onion masala', 'Mix with rice', 'Garnish with coriander'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Lemon Rice -->
+  <div class="recipe-card" data-name="lemonrice">
+    <img src="image/lemonrice.jpg" alt="Lemon Rice" />
+    <h3>Lemon Rice</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Lemon Rice', 
+      ['Cooked rice', 'Lemon juice', 'Mustard seeds', 'Chilies, curry leaves'], 
+      ['Temper mustard, chilies, curry leaves', 'Add rice and lemon juice', 'Mix well'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Jeera Rice -->
+  <div class="recipe-card" data-name="jeerarice">
+    <img src="image/jeera.jpg" alt="Jeera Rice" />
+    <h3>Jeera Rice</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Jeera Rice', 
+      ['Cooked rice', 'Cumin seeds', 'Ghee or oil'], 
+      ['Heat ghee and crackle cumin', 'Add rice and toss'])">
+      View Recipe
+    </button>
+  </div>
+
+      <!-- Grill Chicken -->
+<div class="recipe-card" data-name="grillchicken">
+    <img src="image/grill.jpg" alt="Grill Chicken" />
+    <h3>Grill Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Grill Chicken', 
+      ['Chicken (whole or pieces)', 'Yogurt', 'Spices (red chili, turmeric, garam masala)', 'Lemon juice'], 
+      ['Marinate chicken with all ingredients', 'Grill or bake until cooked and charred'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Dragon Chicken -->
+  <div class="recipe-card" data-name="dragonchicken">
+    <img src="image/dragon.jpg" alt="Dragon Chicken" />
+    <h3>Dragon Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Dragon Chicken', 
+      ['Boneless chicken', 'Capsicum', 'Onions', 'Schezwan sauce', 'Soy sauce'], 
+      ['Fry marinated chicken pieces', 'Sauté veggies and mix with sauces', 'Combine all and cook briefly'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chilli Chicken -->
+  <div class="recipe-card" data-name="chillichicken">
+    <img src="image/chilli.jpg" alt="Chilli Chicken" />
+    <h3>Chilli Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chilli Chicken', 
+      ['Boneless chicken', 'Green chilies', 'Soy sauce', 'Onion & capsicum'], 
+      ['Fry marinated chicken', 'Sauté veggies and add sauces', 'Mix chicken and cook well'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Pepper Chicken -->
+  <div class="recipe-card" data-name="pepperchicken">
+    <img src="image/pepper.jpg" alt="Pepper Chicken" />
+    <h3>Pepper Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Pepper Chicken', 
+      ['Chicken', 'Black pepper', 'Onion', 'Garlic', 'Curry leaves'], 
+      ['Sauté onions and garlic', 'Add chicken and cook', 'Add pepper and finish with curry leaves'])">
+      View Recipe
+    </button>
+  </div>
+    <!-- Chicken Roll -->
+<div class="recipe-card" data-name="chickenroll">
+    <img src="image/chickenroll.jpg" alt="Chicken Roll" />
+    <h3>Chicken Roll</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Roll', 
+      ['Chapati or paratha', 'Shredded chicken', 'Onions', 'Sauces'], 
+      ['Cook chicken with spices', 'Place filling in wrap', 'Roll and toast on tawa'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Biryani -->
+  <div class="recipe-card" data-name="chickenbiryani">
+    <img src="image/briyani.jpg" alt="Chicken Biryani" />
+    <h3>Chicken Biryani</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Biryani', 
+      ['Chicken', 'Basmati rice', 'Spices', 'Curd', 'Fried onions'], 
+      ['Marinate chicken', 'Cook rice 70%', 'Layer rice and chicken', 'Dum cook'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Fried Rice -->
+  <div class="recipe-card" data-name="chickenfriedrice">
+    <img src="image/cfriedrice.jpg" alt="Chicken Fried Rice" />
+    <h3>Chicken Fried Rice</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Fried Rice', 
+      ['Cooked rice', 'Chicken pieces', 'Soy sauce', 'Egg', 'Veggies'], 
+      ['Scramble egg, sauté chicken and veggies', 'Add rice and sauces', 'Mix and stir-fry'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Noodles -->
+  <div class="recipe-card" data-name="chickennoodles">
+    <img src="image/noodlesc.jpg" alt="Chicken Noodles" />
+    <h3>Chicken Noodles</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Noodles', 
+      ['Boiled noodles', 'Shredded chicken', 'Veggies', 'Soy & chili sauce'], 
+      ['Stir-fry chicken and veggies', 'Add noodles and sauces', 'Toss until mixed'])">
+      View Recipe
+    </button>
+  </div>
+  
+      <!-- Pani Poori -->
+<div class="recipe-card" data-name="panipoori">
+    <img src="image/panipuri.jpg" alt="Pani Poori" />
+    <h3>Pani Poori</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Pani Poori', 
+      ['Poori (crispy shells)', 'Boiled potato', 'Spicy pani water'], 
+      ['Stuff poori with potato', 'Dip in flavored water', 'Serve immediately'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Sev Poori -->
+  <div class="recipe-card" data-name="sevpoori">
+    <img src="image/sev.jpg" alt="Sev Poori" />
+    <h3>Sev Poori</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Sev Poori', 
+      ['Papdi', 'Boiled potatoes', 'Chutneys', 'Onions', 'Sev'], 
+      ['Arrange papdi', 'Add toppings & chutneys', 'Sprinkle sev'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Pav Bhaji -->
+  <div class="recipe-card" data-name="pavbhaji">
+    <img src="image/pav.jpg" alt="Pav Bhaji" />
+    <h3>Pav Bhaji</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Pav Bhaji', 
+      ['Mixed vegetables', 'Pav bhaji masala', 'Butter', 'Pav buns'], 
+      ['Mash and cook veggies with spices', 'Toast pav in butter', 'Serve hot with lemon and onion'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Bhel Puri -->
+  <div class="recipe-card" data-name="bhelpuri">
+    <img src="image/bhel.jpg" alt="Bhel Puri" />
+    <h3>Bhel Puri</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Bhel Puri', 
+      ['Puffed rice', 'Sev', 'Chopped veggies', 'Chutneys'], 
+      ['Mix all ingredients quickly before serving'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- French Fries -->
+  <div class="recipe-card" data-name="fries">
+    <img src="image/frenchfries.jpg" alt="French Fries" />
+    <h3>French Fries</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('French Fries', 
+      ['Potatoes', 'Salt', 'Oil for frying'], 
+      ['Cut into sticks', 'Deep fry until golden', 'Sprinkle salt'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Dahi Puri -->
+  <div class="recipe-card" data-name="dahipuri">
+    <img src="image/dahi.jpg" alt="Dahi Puri" />
+    <h3>Dahi Puri</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Dahi Puri', 
+      ['Puris', 'Boiled potato', 'Curd', 'Sweet & spicy chutneys', 'Sev'], 
+      ['Fill puris with ingredients', 'Top with curd and chutneys', 'Sprinkle sev'])">
+      View Recipe
+    </button>
+  </div>
+      <!-- Samosa -->
+<div class="recipe-card" data-name="samosa">
+    <img src="image/samaso.jpg" alt="Samosa" />
+    <h3>Samosa</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Samosa', 
+      ['All-purpose flour', 'Boiled potatoes', 'Green peas', 'Spices'], 
+      ['Make dough with flour', 'Prepare spicy potato filling', 'Stuff and deep fry until golden'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Kachori -->
+  <div class="recipe-card" data-name="kachori">
+    <img src="image/kach.jpg" alt="Kachori" />
+    <h3>Kachori</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Kachori', 
+      ['All-purpose flour', 'Spiced lentil or onion filling'], 
+      ['Prepare dough', 'Make filling with spices', 'Fill, seal and deep fry till crispy'])">
+      View Recipe
+    </button>
+  </div>
+    
+
+ <!-- Margherita Pizza -->
+ <div class="recipe-card" data-name="margherita">
+  <img src="image/mar.jpg" alt="Margherita Pizza" />
+  <h3>Margherita Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Margherita Pizza', 
+    ['Pizza base', 'Tomato sauce', 'Mozzarella cheese', 'Basil leaves'], 
+    ['Spread sauce on base', 'Add cheese & basil', 'Bake until golden'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Farmhouse Pizza -->
+ <div class="recipe-card" data-name="farmhouse">
+  <img src="image/fram.jpg" alt="Farmhouse Pizza" />
+  <h3>Farmhouse Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Farmhouse Pizza', 
+    ['Pizza base', 'Capsicum', 'Tomato', 'Onion', 'Cheese'], 
+    ['Spread sauce, arrange veggies', 'Add cheese', 'Bake till melted'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Veggie Delight Pizza -->
+ <div class="recipe-card" data-name="veggiedelight">
+  <img src="image/veggiedelight.jpg" alt="Veggie Delight Pizza" />
+  <h3>Veggie Delight Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Veggie Delight Pizza', 
+    ['Pizza base', 'Mixed vegetables', 'Cheese', 'Oregano'], 
+    ['Spread sauce, add veggies & cheese', 'Bake until crispy'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Cheese Burst Pizza -->
+ <div class="recipe-card" data-name="cheeseburst">
+  <img src="image/cheeseburst.jpg" alt="Cheese Burst Pizza" />
+  <h3>Cheese Burst Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Cheese Burst Pizza', 
+    ['Stuffed pizza base', 'Extra mozzarella', 'Pizza sauce'], 
+    ['Fill base with cheese', 'Add toppings and sauce', 'Bake'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Paneer Pizza -->
+ <div class="recipe-card" data-name="paneerpizza">
+  <img src="image/paneerp.jpg" alt="Paneer Pizza" />
+  <h3>Paneer Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Paneer Pizza', 
+    ['Pizza base', 'Paneer cubes', 'Onion', 'Capsicum', 'Cheese'], 
+    ['Add toppings and cheese', 'Bake till crust is crisp'])">
+    View Recipe
+  </button>
+ </div>
+
+ 
+
+ <!-- Pepperoni Pizza -->
+ <div class="recipe-card" data-name="pepperoni">
+  <img src="image/pepperoni.jpg" alt="Pepperoni Pizza" />
+  <h3>Pepperoni Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Pepperoni Pizza', 
+    ['Pizza base', 'Tomato sauce', 'Pepperoni slices', 'Mozzarella cheese'], 
+    ['Layer sauce, cheese & pepperoni', 'Bake until bubbly'])">
+    View Recipe
+  </button>
+</div>
+
+ <!-- Chicken Tikka Pizza -->
+ <div class="recipe-card" data-name="chickentikka">
+  <img src="image/chickentikka.jpg" alt="Chicken Tikka Pizza" />
+  <h3>Chicken Tikka Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chicken Tikka Pizza', 
+    ['Pizza base', 'Chicken tikka', 'Onion', 'Capsicum', 'Cheese'], 
+    ['Add sauce, toppings and cheese', 'Bake till golden'])">
+    View Recipe
+  </button>
+ </div>
+
+  <!-- BBQ Chicken Pizza -->
+  <div class="recipe-card" data-name="bbqchicken">
+  <img src="image/bbq.jpg" alt="BBQ Chicken Pizza" />
+  <h3>BBQ Chicken Pizza</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('BBQ Chicken Pizza', 
+    ['Pizza base', 'BBQ chicken', 'Onions', 'Cheese'], 
+    ['Spread BBQ sauce', 'Add chicken & cheese', 'Bake until done'])">
+    View Recipe
+  </button>
+ </div>
+
+
+        <!-- Veg Kuruma -->
+<div class="recipe-card" data-name="vegkuruma">
+    <img src="image/kuruma.jpg" alt="Veg Kuruma" />
+    <h3>Veg Kuruma</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Veg Kuruma', 
+      ['Mixed vegetables', 'Grated coconut', 'Green chilies', 'Fennel seeds', 'Spices'], 
+      ['Grind coconut paste', 'Cook veggies with spices and paste'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Veg Gravy -->
+  <div class="recipe-card" data-name="veggravy">
+    <img src="image/veggravy.jpg" alt="Veg Gravy" />
+    <h3>Veg Gravy</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Veg Gravy', 
+      ['Mixed vegetables', 'Onion', 'Tomato puree', 'Cream or cashew paste', 'Spices'], 
+      ['Sauté base gravy', 'Add vegetables and simmer'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Paneer Butter Masala -->
+  <div class="recipe-card" data-name="paneerbutter">
+    <img src="image/paneerbutter.jpg" alt="Paneer Butter Masala" />
+    <h3>Paneer Butter Masala</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Paneer Butter Masala', 
+      ['Paneer cubes', 'Tomato puree', 'Cream', 'Butter', 'Spices'], 
+      ['Cook tomato gravy with spices', 'Add paneer and cream'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Matar Paneer -->
+  <div class="recipe-card" data-name="matarpaneer">
+    <img src="image/matarpaneer.jpg" alt="Matar Paneer" />
+    <h3>Matar Paneer</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Matar Paneer', 
+      ['Paneer', 'Green peas', 'Tomato onion base', 'Spices'], 
+      ['Cook base gravy', 'Add peas and paneer', 'Simmer well'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Veg Kofta -->
+  <div class="recipe-card" data-name="vegkofta">
+    <img src="image/vegkofta.jpg" alt="Veg Kofta" />
+    <h3>Veg Kofta</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Veg Kofta', 
+      ['Grated veggies', 'Besan/flour', 'Spices', 'Creamy tomato gravy'], 
+      ['Make koftas and fry', 'Prepare gravy and add koftas'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chana Masala -->
+  <div class="recipe-card" data-name="chanamasala">
+    <img src="image/chana.jpg" alt="Chana Masala" />
+    <h3>Chana Masala</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chana Masala', 
+      ['Boiled chickpeas', 'Onion', 'Tomato', 'Chana masala powder'], 
+      ['Sauté onion-tomato gravy', 'Add chickpeas & simmer'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Aloo Gobi -->
+  <div class="recipe-card" data-name="aloogobi">
+    <img src="image/aloogobi.jpg" alt="Aloo Gobi" />
+    <h3>Aloo Gobi</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Aloo Gobi', 
+      ['Potatoes', 'Cauliflower', 'Onion', 'Tomato', 'Spices'], 
+      ['Sauté spices, add veggies', 'Cover and cook till soft'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Mix Veg Curry -->
+  <div class="recipe-card" data-name="mixveg">
+    <img src="image/vegcurry.jpg" alt="Mix Veg Curry" />
+    <h3>Mix Veg Curry</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Mix Veg Curry', 
+      ['Carrot', 'Beans', 'Peas', 'Paneer', 'Tomato onion gravy'], 
+      ['Cook vegetables in gravy base', 'Simmer until flavors combine'])">
+      View Recipe
+    </button>
+  </div>
+    <!-- White Chicken Gravy -->
+  <div class="recipe-card" data-name="whitechicken">
+    <img src="image/whitechicken.jpg" alt="White Chicken Gravy" />
+    <h3>White Chicken Gravy</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('White Chicken Gravy', 
+      ['Chicken', 'Curd', 'Cashew paste', 'Cream', 'Green chilies', 'Spices'], 
+      ['Marinate chicken', 'Cook with curd and cashew paste', 'Add cream and simmer'])">
+      View Recipe
+    </button>
+  </div>
+
+         <!-- Chicken Curry -->
+<div class="recipe-card" data-name="chickencurry">
+    <img src="image/chickencurry.jpg" alt="Chicken Curry" />
+    <h3>Chicken Curry</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Curry', 
+      ['Chicken', 'Onion', 'Tomato', 'Ginger garlic paste', 'Spices'], 
+      ['Sauté onions & paste', 'Add chicken & tomato', 'Cook till gravy thickens'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Masala -->
+  <div class="recipe-card" data-name="chickenmasala">
+    <img src="image/chickenmasala.jpg" alt="Chicken Masala" />
+    <h3>Chicken Masala</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Masala', 
+      ['Chicken', 'Onion tomato gravy', 'Garam masala', 'Coriander'], 
+      ['Cook chicken in thick spicy gravy'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Chettinad -->
+  <div class="recipe-card" data-name="chettinad">
+    <img src="image/chettinad.jpg" alt="Chicken Chettinad" />
+    <h3>Chicken Chettinad</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Chettinad', 
+      ['Chicken', 'Roasted spices', 'Coconut', 'Onion', 'Tomato'], 
+      ['Grind masala, cook chicken with it till tender'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Andhra Chicken Curry -->
+  <div class="recipe-card" data-name="andhra">
+    <img src="image/andhra.jpg" alt="Andhra Chicken Curry" />
+    <h3>Andhra Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Andhra Chicken Curry', 
+      ['Chicken', 'Red chili powder', 'Curry leaves', 'Onion', 'Garam masala'], 
+      ['Cook chicken in spicy gravy with curry leaves'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Dhaba Style Chicken -->
+  <div class="recipe-card" data-name="dhaba">
+    <img src="image/dhaba.jpg" alt="Dhaba Style Chicken" />
+    <h3>Dhaba Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Dhaba Style Chicken', 
+      ['Chicken', 'Onions', 'Tomatoes', 'Spices', 'Butter/oil'], 
+      ['Slow cook chicken for rustic dhaba flavor'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Spicy Chicken Gravy -->
+  <div class="recipe-card" data-name="spicychicken">
+    <img src="image/spicy.jpg" alt="Spicy Chicken Gravy" />
+    <h3>Spicy Chicken</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Spicy Chicken Gravy', 
+      ['Chicken', 'Green chilies', 'Red chili powder', 'Onion', 'Tomato'], 
+      ['Sauté all spices, add chicken, simmer until thick'])">
+      View Recipe
+    </button>
+  </div>
+  
+  <!-- Chicken Kurma (South Indian) -->
+  <div class="recipe-card" data-name="chickenkurma">
+    <img src="image/chickenkurma.jpg" alt="Chicken Kurma" />
+    <h3>Chicken Kurma</h3>
+    <button class="view-recipe-btn"
+      onclick="showRecipe('Chicken Kurma', 
+      ['Chicken', 'Coconut paste', 'Fennel seeds', 'Onions', 'Green chili'], 
+      ['Cook chicken in coconut-fennel based gravy'])">
+      View Recipe
+    </button>
+  </div>
+        <!-- Gulab Jamun -->
+ <div class="recipe-card" data-name="gulabjamun">
+  <img src="image/gulab.jpg" alt="Gulab Jamun" />
+  <h3>Gulab Jamun</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Gulab Jamun', 
+    ['Milk powder', 'Maida', 'Sugar syrup', 'Ghee'], 
+    ['Make dough balls', 'Fry and soak in sugar syrup'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Rasgulla -->
+ <div class="recipe-card" data-name="rasgulla">
+  <img src="image/rasagulla.jpg" alt="Rasgulla" />
+  <h3>Rasgulla</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Rasgulla', 
+    ['Chenna (paneer)', 'Sugar', 'Water'], 
+    ['Make balls from chenna', 'Boil in sugar water until spongy'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Besan Ladoo -->
+ <div class="recipe-card" data-name="besanladoo">
+  <img src="image/besan.jpg" alt="Besan Ladoo" />
+  <h3>Besan Ladoo</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Besan Ladoo', 
+    ['Besan (gram flour)', 'Ghee', 'Sugar', 'Cardamom'], 
+    ['Roast besan in ghee', 'Add sugar & shape into ladoos'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Jalebi -->
+ <div class="recipe-card" data-name="jalebi">
+  <img src="image/jalebi.jpg" alt="Jalebi" />
+  <h3>Jalebi</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Jalebi', 
+    ['Maida', 'Curd', 'Sugar syrup', 'Oil'], 
+    ['Ferment batter', 'Pipe spirals in hot oil', 'Dip in sugar syrup'])">
+    View Recipe
+  </button>
+ </div>
+
+<!-- Kaju Katli -->
+ <div class="recipe-card" data-name="kajukatli">
+  <img src="image/kaju.jpg" alt="Kaju Katli" />
+  <h3>Kaju Katli</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Kaju Katli', 
+    ['Cashew powder', 'Sugar', 'Ghee'], 
+    ['Cook cashew-sugar mixture', 'Roll and cut into diamonds'])">
+    View Recipe
+  </button>
+ </div>
+
+ <!-- Rasmalai -->
+ <div class="recipe-card" data-name="rasmalai">
+  <img src="image/rasmalai.jpg" alt="Rasmalai" />
+  <h3>Rasmalai</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Rasmalai', 
+    ['Rasgullas', 'Milk', 'Sugar', 'Saffron', 'Cardamom'], 
+    ['Boil milk to rabri', 'Add rasgullas & chill'])">
+    View Recipe
+  </button>
+ </div>
+
+
+ <!-- Coconut Burfi -->
+ <div class="recipe-card" data-name="coconutburfi">
+  <img src="image/coconut.jpg" alt="Coconut Burfi" />
+  <h3>Coconut Burfi</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Coconut Burfi', 
+    ['Grated coconut', 'Condensed milk', 'Cardamom'], 
+    ['Mix and cook till thick', 'Set and cut into pieces'])">
+    View Recipe
+  </button>
+ </div>
+       <!-- Kesari -->
+ <div class="recipe-card" data-name="kesari">
+  <img src="image/kesari.jpg" alt="Kesari" />
+  <h3>Kesari</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Kesari', 
+    ['Rava (semolina)', 'Sugar', 'Ghee', 'Water', 'Cardamom', 'Saffron or food color', 'Cashews & raisins'], 
+    ['Roast rava in ghee', 'Boil water with color & cardamom', 'Add rava slowly', 'Mix in sugar & ghee', 'Garnish with fried nuts'])">
+    View Recipe
+  </button>
+  </div>
+          
+      <!-- Blackcurrant Milkshake -->
+  <div class="recipe-card" data-name="chocolate milkshake cold drink summer sweet">
+  <img src="image/blackcurrent.jpg" alt="Blackcurrant Milkshake" />
+  <h3>Blackcurrant Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Blackcurrant Milkshake', 
+    ['Milk', 'Blackcurrant syrup or ice cream', 'Sugar', 'Ice cubes'], 
+    ['Blend all ingredients until smooth', 'Serve chilled'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Strawberry Milkshake -->
+<div class="recipe-card" data-name="strawberry">
+  <img src="image/straw.jpg" alt="Strawberry Milkshake" />
+  <h3>Strawberry Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Strawberry Milkshake', 
+    ['Strawberries', 'Milk', 'Sugar', 'Ice cream (optional)'], 
+    ['Blend strawberries and milk', 'Add sugar and serve cold'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Oreo Milkshake -->
+<div class="recipe-card" data-name="oreo">
+  <img src="image/oreo.jpg" alt="Oreo Milkshake" />
+  <h3>Oreo Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Oreo Milkshake', 
+    ['Milk', 'Oreo biscuits', 'Vanilla ice cream'], 
+    ['Crush Oreos', 'Blend with milk and ice cream', 'Serve with crushed Oreos on top'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Ferrero Rocher Milkshake -->
+<div class="recipe-card" data-name="ferrero">
+  <img src="image/fero.jpg" alt="Ferrero Rocher Milkshake" />
+  <h3>Ferrero Rocher Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Ferrero Rocher Milkshake', 
+    ['Milk', 'Ferrero Rocher chocolates', 'Chocolate syrup', 'Ice cream'], 
+    ['Blend everything until creamy', 'Top with chocolate syrup'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Banana Milkshake -->
+<div class="recipe-card" data-name="banana">
+  <img src="image/banana.jpg" alt="Banana Milkshake" />
+  <h3>Banana Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Banana Milkshake', 
+    ['Banana', 'Milk', 'Sugar or honey', 'Cardamom (optional)'], 
+    ['Blend bananas and milk', 'Add sugar or honey, serve chilled'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Chocolate Milkshake -->
+<div class="recipe-card" data-name="chocolate">
+  <img src="image/choco.jpg" alt="Chocolate Milkshake" />
+  <h3>Chocolate Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chocolate Milkshake', 
+    ['Milk', 'Chocolate syrup or melted chocolate', 'Vanilla ice cream'], 
+    ['Blend ingredients', 'Drizzle with chocolate syrup to serve'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Vanilla Milkshake -->
+<div class="recipe-card" data-name="vanilla">
+  <img src="image/venila.jpg" alt="Vanilla Milkshake" />
+  <h3>Vanilla Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Vanilla Milkshake', 
+    ['Milk', 'Vanilla ice cream', 'Vanilla essence', 'Sugar'], 
+    ['Blend all together until frothy', 'Serve with ice cubes'])">
+    View Recipe
+  </button>
+ </div>
+   <!-- Red Velvet Milkshake -->
+<div class="recipe-card" data-name="redvelvet">
+  <img src="image/red.jpg" alt="Red Velvet Milkshake" />
+  <h3>Red Velvet Milkshake</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Red Velvet Milkshake', 
+    ['Milk', 'Red velvet cake or crumbs', 'Vanilla ice cream', 'Cream cheese (optional)', 'Red food color'], 
+    ['Blend red velvet cake, milk, and ice cream', 'Add cream cheese for richness', 'Serve chilled with whipped cream'])">
+    View Recipe
+  </button>
+</div>
+
+    <!-- Fish Fry -->
+<div class="recipe-card" data-name="fishfry">
+  <img src="image/fish.jpg" alt="Fish Fry" />
+  <h3>Fish Fry</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Fish Fry', 
+    ['Fish slices', 'Red chili powder', 'Turmeric', 'Lemon juice', 'Salt', 'Oil'], 
+    ['Marinate fish with spices', 'Shallow fry until crisp'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Fish Finger -->
+<div class="recipe-card" data-name="fishfinger">
+  <img src="image/fishfinger.jpg" alt="Fish Finger" />
+  <h3>Fish Finger</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Fish Finger', 
+    ['Boneless fish strips', 'Maida', 'Egg', 'Bread crumbs', 'Spices'], 
+    ['Marinate fish, coat with egg and crumbs', 'Deep fry until golden'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Fish Gravy -->
+<div class="recipe-card" data-name="fishgravy">
+  <img src="image/fishgravy.jpg" alt="Fish Gravy" />
+  <h3>Fish Gravy</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Fish Gravy', 
+    ['Fish pieces', 'Onion', 'Tomato', 'Coconut paste', 'Spices'], 
+    ['Cook onion-tomato masala', 'Add fish and simmer in coconut gravy'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Crab Gravy -->
+<div class="recipe-card" data-name="crabgravy">
+  <img src="image/crabgravy.jpg" alt="Crab Gravy" />
+  <h3>Crab Gravy</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Crab Gravy', 
+    ['Crab', 'Onion', 'Tomato', 'Ginger garlic paste', 'Coconut or spice mix'], 
+    ['Clean and cook crab in spiced masala gravy'])">
+    View Recipe
+  </button>
+</div>
+ <!-- Crab Fry -->
+<div class="recipe-card" data-name="crabfry">
+  <img src="image/crabfry.jpg" alt="Crab Fry" />
+  <h3>Crab Fry</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Crab Fry', 
+    ['Crab (cleaned)', 'Onion', 'Tomato', 'Ginger garlic paste', 'Black pepper', 'Red chili powder', 'Turmeric', 'Curry leaves', 'Oil', 'Salt'], 
+    ['Boil crab slightly with turmeric and salt', 'In a pan, sauté onions and ginger garlic paste', 'Add tomatoes, spices, and curry leaves', 'Add crab and stir fry until masala coats well'])">
+    View Recipe
+  </button>
+</div>
+
+
+<!-- Prawn Gravy -->
+<div class="recipe-card" data-name="prawngravy">
+  <img src="image/prawn.jpg" alt="Prawn Gravy" />
+  <h3>Prawn Gravy</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Prawn Gravy', 
+    ['Prawns', 'Onion', 'Tomato', 'Ginger garlic paste', 'Spices'], 
+    ['Sauté onion-tomato masala', 'Add prawns and cook till done'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Chilli Prawn -->
+<div class="recipe-card" data-name="chilliprawn">
+  <img src="image/chilliprawn.jpg" alt="Chilli Prawn" />
+  <h3>Chilli Prawn</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chilli Prawn', 
+    ['Prawns', 'Soy sauce', 'Green chili', 'Onion', 'Cornflour'], 
+    ['Marinate prawns, stir-fry with sauces and veggies'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Squid Fry -->
+<div class="recipe-card" data-name="squidfry">
+  <img src="image/squid.jpg" alt="Squid Fry" />
+  <h3>Squid Fry</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Squid Fry', 
+    ['Squid rings', 'Red chili powder', 'Turmeric', 'Cornflour', 'Salt', 'Oil'], 
+    ['Marinate squid, coat lightly, and deep fry until crispy'])">
+    View Recipe
+  </button>
+</div>
+
+   <!-- Veg Sandwiches -->
+
+<!-- Veg Cheese Sandwich -->
+<div class="recipe-card" data-name="vegcheese">
+  <img src="image/vegsand.jpg" alt="Veg Cheese Sandwich" />
+  <h3>Veg Cheese Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Veg Cheese Sandwich', 
+    ['Bread', 'Cheese', 'Tomato', 'Cucumber', 'Butter', 'Chaat masala'], 
+    ['Apply butter on bread', 'Add veggies & cheese', 'Grill or toast till golden'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Aloo Sandwich -->
+<div class="recipe-card" data-name="aloosandwich">
+  <img src="image/aloosand.jpg" alt="Aloo Sandwich" />
+  <h3>Aloo Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Aloo Sandwich', 
+    ['Bread', 'Boiled potato', 'Spices', 'Butter'], 
+    ['Mash potato with spices', 'Spread on bread', 'Toast or grill'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Paneer Sandwich -->
+<div class="recipe-card" data-name="paneersandwich">
+  <img src="image/paneersand.jpg" alt="Paneer Sandwich" />
+  <h3>Paneer Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Paneer Sandwich', 
+    ['Bread', 'Grated paneer', 'Capsicum', 'Onion', 'Spices'], 
+    ['Mix paneer & veggies', 'Stuff between bread', 'Toast until crispy'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Vegetable Mayo Sandwich -->
+<div class="recipe-card" data-name="vegmayo">
+  <img src="image/vegmayo.jpg" alt="Veg Mayo Sandwich" />
+  <h3>Veg Mayo Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Veg Mayo Sandwich', 
+    ['Bread', 'Mayonnaise', 'Grated carrot', 'Cabbage', 'Corn'], 
+    ['Mix veggies with mayo', 'Spread between bread', 'Serve cold or toasted'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Non-Veg Sandwiches -->
+
+<!-- Chicken Sandwich -->
+<div class="recipe-card" data-name="chickensandwich">
+  <img src="image/chickensand.jpg" alt="Chicken Sandwich" />
+  <h3>Chicken Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chicken Sandwich', 
+    ['Bread', 'Boiled shredded chicken', 'Mayonnaise', 'Pepper'], 
+    ['Mix chicken with mayo', 'Spread on bread', 'Toast or serve cold'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Egg Sandwich -->
+<div class="recipe-card" data-name="eggsandwich">
+  <img src="image/egg.jpg" alt="Egg Sandwich" />
+  <h3>Egg Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Egg Sandwich', 
+    ['Bread', 'Boiled eggs', 'Mayonnaise', 'Salt', 'Pepper'], 
+    ['Chop eggs and mix with mayo', 'Spread between bread slices'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Chicken Club Sandwich -->
+<div class="recipe-card" data-name="club">
+  <img src="image/club.jpg" alt="Chicken Club Sandwich" />
+  <h3>Chicken Club Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chicken Club Sandwich', 
+    ['Bread', 'Chicken', 'Lettuce', 'Tomato', 'Mayonnaise', 'Cheese'], 
+    ['Layer ingredients in 3 bread slices', 'Toast and cut into triangles'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Tuna Sandwich -->
+<div class="recipe-card" data-name="tuna">
+  <img src="image/tuna.jpg" alt="Tuna Sandwich" />
+  <h3>Tuna Sandwich</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Tuna Sandwich', 
+    ['Bread', 'Canned tuna', 'Mayonnaise', 'Lettuce', 'Pepper'], 
+    ['Mix tuna with mayo', 'Add lettuce and spread on bread'])">
+    View Recipe
+  </button>
+</div>
+
+      <!-- Burger -->
+<div class="recipe-card" data-name="burger">
+  <img src="image/burger.jpg" alt="Burger" />
+  <h3>Burger</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Burger', 
+    ['Burger bun', 'Patty (veg or chicken)', 'Lettuce', 'Tomato', 'Cheese', 'Mayonnaise'], 
+    ['Toast buns', 'Cook patty', 'Layer all ingredients and serve'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Fried Chicken -->
+<div class="recipe-card" data-name="friedchicken">
+  <img src="image/friedchicken.jpg" alt="Fried Chicken" />
+  <h3>Fried Chicken</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Fried Chicken', 
+    ['Chicken pieces', 'Buttermilk', 'Maida', 'Spices', 'Oil'], 
+    ['Marinate chicken in buttermilk', 'Coat in seasoned flour', 'Deep fry until crispy'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- White Sauce Pasta -->
+<div class="recipe-card" data-name="whitesaucepasta">
+  <img src="image/pasta.jpg" alt="White Sauce Pasta" />
+  <h3>White Sauce Pasta</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('White Sauce Pasta', 
+    ['Pasta', 'Butter', 'Maida', 'Milk', 'Cheese', 'Oregano', 'Chili flakes'], 
+    ['Boil pasta', 'Prepare white sauce', 'Mix pasta and cook till creamy'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Spaghetti -->
+<div class="recipe-card" data-name="spaghetti">
+  <img src="image/spagati.jpg" alt="Spaghetti" />
+  <h3>Spaghetti</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Spaghetti', 
+    ['Spaghetti pasta', 'Garlic', 'Tomato sauce', 'Olive oil', 'Basil'], 
+    ['Boil spaghetti', 'Sauté garlic, add sauce', 'Mix with pasta and serve hot'])">
+    View Recipe
+  </button>
+</div>
+    
+          <!-- Tomato Soup -->
+<div class="recipe-card" data-name="tomatosoup">
+  <img src="image/tomattosoup.jpg" alt="Tomato Soup" />
+  <h3>Tomato Soup</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Tomato Soup', 
+    ['Tomatoes', 'Onion', 'Garlic', 'Butter', 'Salt', 'Pepper', 'Cream'], 
+    ['Boil tomatoes with onion and garlic', 'Blend and strain', 'Simmer with butter, salt, and pepper', 'Top with cream and serve'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Sweet Corn Soup -->
+<div class="recipe-card" data-name="sweetcornsoup">
+  <img src="image/sweetcorn.jpg" alt="Sweet Corn Soup" />
+  <h3>Sweet Corn Soup</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Sweet Corn Soup', 
+    ['Sweet corn kernels', 'Vegetable stock', 'Cornflour slurry', 'Spring onion', 'Salt', 'Pepper'], 
+    ['Boil corn in stock', 'Add cornflour slurry to thicken', 'Season and garnish with spring onion'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Chicken Soup -->
+<div class="recipe-card" data-name="chickensoup">
+  <img src="image/chickensoup.jpg" alt="Chicken Soup" />
+  <h3>Chicken Soup</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Chicken Soup', 
+    ['Chicken pieces', 'Onion', 'Garlic', 'Carrot', 'Pepper', 'Salt', 'Water'], 
+    ['Boil chicken with veggies and spices', 'Strain and shred chicken', 'Simmer broth and serve hot'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Hot and Sour Soup -->
+<div class="recipe-card" data-name="hotandsour">
+  <img src="image/hot.jpg" alt="Hot and Sour Soup" />
+  <h3>Hot & Sour Soup</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Hot and Sour Soup', 
+    ['Shredded veggies or chicken', 'Soy sauce', 'Vinegar', 'Pepper', 'Chili sauce', 'Cornflour slurry'], 
+    ['Cook veggies/chicken in water', 'Add sauces and slurry', 'Boil and serve hot'])">
+    View Recipe
+  </button>
+</div>
+   <!-- Veg Cutlet -->
+<div class="recipe-card" data-name="cutlet">
+  <img src="image/cutlet.jpg" alt="Veg Cutlet" />
+  <h3>Veg Cutlet</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Veg Cutlet', 
+    ['Boiled potato', 'Carrot', 'Beans', 'Spices', 'Bread crumbs', 'Oil'], 
+    ['Mash and mix veggies with spices', 'Shape into patties', 'Dip in slurry, coat with crumbs', 'Shallow fry till golden'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Egg Puffs -->
+<div class="recipe-card" data-name="eggpuff">
+  <img src="image/eggpuff.jpg" alt="Egg Puffs" />
+  <h3>Egg Puffs</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Egg Puffs', 
+    ['Boiled eggs', 'Onion masala', 'Puff pastry sheets'], 
+    ['Wrap egg in onion masala with puff sheet', 'Bake until crispy and golden'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Vazhakka Bajji -->
+<div class="recipe-card" data-name="vazhakkabajji">
+  <img src="image/vazhakka.jpg" alt="Vazhakka Bajji" />
+  <h3>Vazhakka Bajji</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Vazhakka Bajji', 
+    ['Raw banana slices', 'Besan (gram flour)', 'Rice flour', 'Spices', 'Oil'], 
+    ['Make thick batter with flours and spices', 'Dip banana slices', 'Deep fry until golden and crispy'])">
+    View Recipe
+  </button>
+</div>
+
+<!-- Medu Vada -->
+<div class="recipe-card" data-name="vada">
+  <img src="image/meduvada.jpg" alt="Medu Vada" />
+  <h3>Medu Vada</h3>
+  <button class="view-recipe-btn"
+    onclick="showRecipe('Medu Vada', 
+    ['Urad dal', 'Onion', 'Curry leaves', 'Green chili', 'Salt', 'Oil'], 
+    ['Soak and grind dal', 'Mix with spices', 'Shape and deep fry till golden'])">
+    View Recipe
+  </button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+
+  <div id="recipeModal">
+    <div class="modal-content">
+      <h2 id="modalTitle"></h2>
+      <h4>Ingredients</h4>
+      <ul id="modalIngredients"></ul>
+      <h4>Steps</h4>
+      <ol id="modalSteps"></ol>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  
+
+  <script src="script.js"></script>
+</body>
+</html>
